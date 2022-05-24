@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"io"
+	"io/fs"
 	"log"
 	"os"
 	"sync"
@@ -20,6 +22,8 @@ var (
 	closeOnEOF      = flag.Bool("ep", false, "terminate on EOF reading from the pipe, even if there is more data to write")
 	closeOnStdinEOF = flag.Bool("ei", false, "terminate on EOF reading from stdin, even if there is more data to write")
 	verbose         = flag.Bool("v", false, "verbose output on stderr")
+	retry           = flag.Int("r", 100, "time to wait in milliseconds between retries when the pipe is busy, zero to disable")
+	busyRetryWait   = 100 * time.Millisecond
 )
 
 func dialPipe(p string, poll bool) (*overlappedFile, error) {
@@ -32,15 +36,16 @@ func dialPipe(p string, poll bool) (*overlappedFile, error) {
 		if err == nil {
 			return newOverlappedFile(h), nil
 		}
-		if poll && os.IsNotExist(err) {
+		if poll && errors.Is(err, fs.ErrNotExist) {
 			time.Sleep(200 * time.Millisecond)
 			continue
 		}
-		if err.Error() == "All pipe instances are busy." {
+		var werr windows.Errno
+		if errors.As(err, &werr) && werr == windows.ERROR_PIPE_BUSY && *retry > 0 {
 			if *verbose {
-				log.Printf("All pipe instances are busy. Waiting 200 milliseconds to retry")
+				log.Printf("all pipe instances are busy, waiting %v to retry", busyRetryWait)
 			}
-			time.Sleep(200 * time.Millisecond)
+			time.Sleep(busyRetryWait)
 			continue
 		}
 		return nil, &os.PathError{Path: p, Op: "open", Err: err}
@@ -61,6 +66,8 @@ func main() {
 		flag.Usage()
 		os.Exit(1)
 	}
+
+	busyRetryWait = time.Duration(*retry) * time.Millisecond
 
 	if *verbose {
 		log.Println("connecting to", args[0])
