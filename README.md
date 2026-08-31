@@ -6,13 +6,20 @@ use Windows named pipes from the Windows Subsystem for Linux (WSL).
 
 For example, you can:
 
-* Connect to Docker for Windows from the Linux Docker client in WSL
-* Connect to MySQL Server running as a Windows service
-* Connect interactively to a Hyper-V Linux VM's serial console
-* Use gdb to connect to debug the kernel of a Hyper-V Linux VM
-* Connect to Windows SSH agent via named pipe
+- Connect to Docker for Windows from the Linux Docker client in WSL
+- Connect to MySQL Server running as a Windows service
+- Connect interactively to a Hyper-V Linux VM's serial console
+- Use gdb to connect to debug the kernel of a Hyper-V Linux VM
+- Connect to Windows SSH agent via named pipe
 
 Let me know on Twitter ([@gigastarks](https://twitter.com/gigastarks)) if you come up with more interesting uses.
+
+# Fork
+
+This fork publishes prebuilt Windows executables for AMD64 and ARM64 through
+GitHub Releases. The executables are digitally signed, allowing Windows to
+verify their publisher and integrity and improving compatibility with Smart
+App Control on Windows 11.
 
 # Installation
 
@@ -128,9 +135,9 @@ The `mysqld-relay` script is designed to be run in a `sudo` shell.
 Before creating the relay, it will try to configure your environment
 (if it has not been configured yet) by:
 
-* creating `/var/run/mysqld/`,
-* creating a `mysql` group, and
-* adding your user account to the `mysql` group.
+- creating `/var/run/mysqld/`,
+- creating a `mysql` group, and
+- adding your user account to the `mysql` group.
 
 You can of course pull out just the npiperelay command if you don't
 need any of the above checks.
@@ -184,8 +191,8 @@ $ powershell.exe Set-VMComPort foo 1 '\\.\pipe\foo_debug_pipe'
 
 Refer to your VM Linux distribution's instructions for enabling the serial console:
 
-* [Ubuntu](https://help.ubuntu.com/community/SerialConsoleHowto)
-* [Fedora](https://docs.fedoraproject.org/f26/system-administrators-guide/kernel-module-driver-configuration/Working_with_the_GRUB_2_Boot_Loader.html#sec-GRUB_2_over_a_Serial_Console])
+- [Ubuntu](https://help.ubuntu.com/community/SerialConsoleHowto)
+- [Fedora](https://docs.fedoraproject.org/f26/system-administrators-guide/kernel-module-driver-configuration/Working_with_the_GRUB_2_Boot_Loader.html#sec-GRUB_2_over_a_Serial_Console])
 
 ### Connecting to the serial port
 
